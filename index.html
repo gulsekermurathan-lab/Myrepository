@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>V-Clicker</title>
+    <title>V-Clicker Pro</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
@@ -11,14 +11,19 @@
         body { font-family: sans-serif; background: #000; color: #fff; text-align: center; margin: 0; padding: 0; overflow: hidden; }
         .header { background: #111; padding: 15px; border-bottom: 2px solid #f1c40f; color: #f1c40f; font-weight: bold; }
         #balance { font-size: 2.5em; margin: 15px 0; text-shadow: 0 0 10px #f1c40f; }
-        .coin-container { height: 250px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .coin { width: 200px; cursor: pointer; transition: transform 0.1s; filter: drop-shadow(0 0 15px rgba(241,196,15,0.5)); }
+        .coin-container { height: 230px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .coin { width: 180px; cursor: pointer; transition: transform 0.1s; filter: drop-shadow(0 0 15px rgba(241,196,15,0.5)); }
         .coin:active { transform: scale(0.9); }
-        #rank-badge { background: #f1c40f; color: #000; padding: 5px 15px; border-radius: 20px; font-weight: bold; margin-top: 10px; font-size: 0.8em; }
+        
+        /* Энергия */
+        .energy-container { width: 80%; background: #333; height: 20px; border-radius: 10px; margin: 20px auto; overflow: hidden; border: 1px solid #444; }
+        #energy-bar { width: 100%; height: 100%; background: linear-gradient(90deg, #f1c40f, #f39c12); transition: width 0.2s; }
+        #energy-text { font-size: 0.9em; color: #f1c40f; margin-top: -15px; }
+
         .tabs { display: flex; position: fixed; bottom: 0; width: 100%; background: #111; height: 70px; border-top: 1px solid #333; }
         .tab { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #666; font-size: 0.8em; cursor: pointer; }
         .tab.active { color: #f1c40f; }
-        .content { display: none; padding: 20px; height: 65vh; overflow-y: auto; }
+        .content { display: none; padding: 20px; height: 60vh; overflow-y: auto; }
         .content.active { display: block; }
         .upgrade-card { background: #1a1a1a; padding: 12px; margin: 8px 0; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #333; }
         .btn { background: #f1c40f; color: #000; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; }
@@ -33,9 +38,14 @@
 <div id="game-tab" class="content active">
     <div class="coin-container">
         <img id="bike-img" src="https://cdn-icons-png.flaticon.com/512/2972/2972185.png" class="coin" onclick="clickCoin()">
-        <div id="rank-badge">Ранг: Новичок</div>
     </div>
-    <div style="margin-top: 20px; color: #aaa;">Клик: <span id="cpc">1</span> | Авто: <span id="cps">0</span></div>
+    
+    <div class="energy-container">
+        <div id="energy-bar"></div>
+    </div>
+    <div id="energy-text">⚡ 1000 / 1000</div>
+
+    <div style="margin-top: 10px; color: #aaa;">Клик: <span id="cpc">1</span> | Авто: <span id="cps">0</span></div>
 </div>
 
 <div id="shop-tab" class="content">
@@ -81,11 +91,16 @@
     let userName = tg.initDataUnsafe?.user?.username || "Gamer";
     document.getElementById('username').innerText = userName;
 
+    // Состояние игры
     let balance = 0;
     let clickPower = 1;
     let autoPower = 0;
     let clickCost = 50;
     let autoCost = 200;
+    
+    // Энергия
+    let energy = 1000;
+    let maxEnergy = 1000;
 
     db.ref('users/' + userId).once('value').then((snapshot) => {
         if (snapshot.exists()) {
@@ -117,15 +132,24 @@
         document.getElementById('cps').innerText = autoPower;
         document.getElementById('upg-click').innerText = clickCost + ' V';
         document.getElementById('upg-auto').innerText = autoCost + ' V';
+        
+        // Обновление полоски энергии
+        let energyPercent = (energy / maxEnergy) * 100;
+        document.getElementById('energy-bar').style.width = energyPercent + '%';
+        document.getElementById('energy-text').innerText = `⚡ ${Math.floor(energy)} / ${maxEnergy}`;
+
         document.getElementById('upg-click').disabled = (balance < clickCost);
         document.getElementById('upg-auto').disabled = (balance < autoCost);
     }
 
     function clickCoin() {
-        balance += clickPower;
-        updateUI();
-        saveToDB();
-        if (window.navigator.vibrate) window.navigator.vibrate(10);
+        if (energy >= 1) {
+            balance += clickPower;
+            energy -= 1;
+            updateUI();
+            saveToDB();
+            if (window.navigator.vibrate) window.navigator.vibrate(10);
+        }
     }
 
     function buyUpgrade(type) {
@@ -160,11 +184,19 @@
         });
     }
 
+    // Восстановление энергии и авто-майнинг
     setInterval(() => { 
+        let changed = false;
         if (autoPower > 0) {
-            balance += autoPower / 10; 
-            updateUI(); 
+            balance += autoPower / 10;
+            changed = true;
         }
+        if (energy < maxEnergy) {
+            energy += 1 / 10; // Восстанавливаем 1 ед в секунду
+            if (energy > maxEnergy) energy = maxEnergy;
+            changed = true;
+        }
+        if (changed) updateUI();
     }, 100);
 
     setInterval(saveToDB, 10000);
