@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Bikoin Evolution: Firebase Edition</title>
+    <title>Bikoin Evolution: V Edition</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
@@ -28,7 +28,7 @@
 <body>
 
 <div class="header">🚲 @<span id="username">Guest</span></div>
-<div id="balance">0 ₸</div>
+<div id="balance">0 V</div>
 
 <div id="game-tab" class="content active">
     <div class="coin-container">
@@ -42,11 +42,11 @@
     <h2 style="color: #f1c40f;">Мастерская Акесу</h2>
     <div class="upgrade-card">
         <div><strong>Турбо-педали</strong><br><small>Клик +1</small></div>
-        <button class="btn" onclick="buyUpgrade('click')" id="upg-click">50 ₸</button>
+        <button class="btn" onclick="buyUpgrade('click')" id="upg-click">50 V</button>
     </div>
     <div class="upgrade-card">
         <div><strong>Смазка цепи</strong><br><small>Авто +2/с</small></div>
-        <button class="btn" onclick="buyUpgrade('auto')" id="upg-auto">200 ₸</button>
+        <button class="btn" onclick="buyUpgrade('auto')" id="upg-auto">200 V</button>
     </div>
 </div>
 
@@ -62,19 +62,19 @@
 </div>
 
 <script>
-    // --- КОНФИГУРАЦИЯ FIREBASE ---
     const firebaseConfig = {
         apiKey: "AIzaSyDR4dwkwzvM_-jpfwC4E4YWg-kXOh2EvHo",
         authDomain: "stalinclicker.firebaseapp.com",
+        databaseURL: "https://stalinclicker-default-rtdb.europe-west1.firebasedatabase.app/",
         projectId: "stalinclicker",
         storageBucket: "stalinclicker.firebasestorage.app",
         messagingSenderId: "266501925938",
         appId: "1:266501925938:web:a4aeba79507602d8c2202b"
     };
+
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // --- ЛОГИКА ИГРЫ ---
     let tg = window.Telegram.WebApp;
     tg.expand();
     let userId = tg.initDataUnsafe?.user?.id || "local_user";
@@ -87,7 +87,6 @@
     let clickCost = 50;
     let autoCost = 200;
 
-    // Загрузка данных из Firebase при старте
     db.ref('users/' + userId).once('value').then((snapshot) => {
         if (snapshot.exists()) {
             let data = snapshot.val();
@@ -113,13 +112,13 @@
     }
 
     function updateUI() {
-        document.getElementById('balance').innerText = Math.floor(balance).toLocaleString() + ' ₸';
+        document.getElementById('balance').innerText = Math.floor(balance).toLocaleString() + ' V';
         document.getElementById('cpc').innerText = clickPower;
         document.getElementById('cps').innerText = autoPower;
-        document.getElementById('upg-click').innerText = clickCost + ' ₸';
-        document.getElementById('upg-auto').innerText = autoCost + ' ₸';
-        document.getElementById('upg-click').disabled = balance < clickCost;
-        document.getElementById('upg-auto').disabled = balance < autoCost;
+        document.getElementById('upg-click').innerText = clickCost + ' V';
+        document.getElementById('upg-auto').innerText = autoCost + ' V';
+        document.getElementById('upg-click').disabled = (balance < clickCost);
+        document.getElementById('upg-auto').disabled = (balance < autoCost);
     }
 
     function clickCoin() {
@@ -143,7 +142,6 @@
         saveToDB();
     }
 
-    // Обновление Лидерборда
     function updateLeaderboard() {
         db.ref('users').orderByChild('balance').limitToLast(10).once('value', (snapshot) => {
             let list = [];
@@ -155,10 +153,10 @@
             list.forEach((user, index) => {
                 html += `<div class="leader-item">
                     <span>${index + 1}. @${user.username}</span>
-                    <span style="color:#f1c40f">${Math.floor(user.balance).toLocaleString()} ₸</span>
+                    <span style="color:#f1c40f">${Math.floor(user.balance).toLocaleString()} V</span>
                 </div>`;
             });
-            document.getElementById('leaderboard-list').innerHTML = html;
+            document.getElementById('leaderboard-list').innerHTML = html || "Пока никого нет...";
         });
     }
 
@@ -169,8 +167,7 @@
         }
     }, 100);
 
-    // Сохранение в базу каждые 5 секунд, чтобы не спамить
-    setInterval(saveToDB, 5000);
+    setInterval(saveToDB, 10000);
 
     function openTab(id, el) {
         document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
@@ -184,4 +181,3 @@
 </script>
 </body>
 </html>
-
