@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Bikoin Evolution: V Edition</title>
+    <title>V-Clicker</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
@@ -27,37 +27,37 @@
 </head>
 <body>
 
-<div class="header">🚲 @<span id="username">Guest</span></div>
+<div class="header">🎮 @<span id="username">Gamer</span></div>
 <div id="balance">0 V</div>
 
 <div id="game-tab" class="content active">
     <div class="coin-container">
         <img id="bike-img" src="https://cdn-icons-png.flaticon.com/512/2972/2972185.png" class="coin" onclick="clickCoin()">
-        <div id="rank-badge">Ранг: Уралец</div>
+        <div id="rank-badge">Ранг: Новичок</div>
     </div>
     <div style="margin-top: 20px; color: #aaa;">Клик: <span id="cpc">1</span> | Авто: <span id="cps">0</span></div>
 </div>
 
 <div id="shop-tab" class="content">
-    <h2 style="color: #f1c40f;">Мастерская Акесу</h2>
+    <h2 style="color: #f1c40f;">Мастерская</h2>
     <div class="upgrade-card">
-        <div><strong>Турбо-педали</strong><br><small>Клик +1</small></div>
+        <div><strong>Улучшение клика</strong><br><small>Клик +1</small></div>
         <button class="btn" onclick="buyUpgrade('click')" id="upg-click">50 V</button>
     </div>
     <div class="upgrade-card">
-        <div><strong>Смазка цепи</strong><br><small>Авто +2/с</small></div>
+        <div><strong>Авто-майнер</strong><br><small>Авто +2/с</small></div>
         <button class="btn" onclick="buyUpgrade('auto')" id="upg-auto">200 V</button>
     </div>
 </div>
 
 <div id="top-tab" class="content">
-    <h2 style="color: #f1c40f;">🏆 Топ Лидеров</h2>
+    <h2 style="color: #f1c40f;">🏆 Топ Игроков</h2>
     <div id="leaderboard-list">Загрузка...</div>
 </div>
 
 <div class="tabs">
-    <div class="tab active" onclick="openTab('game-tab', this)">🚀 КЛИК</div>
-    <div class="tab" onclick="openTab('shop-tab', this)">🛠️ ТЮНИНГ</div>
+    <div class="tab active" onclick="openTab('game-tab', this)">🚀 ИГРА</div>
+    <div class="tab" onclick="openTab('shop-tab', this)">🛠️ МАГАЗИН</div>
     <div class="tab" onclick="openTab('top-tab', this)">🏆 ТОП</div>
 </div>
 
@@ -156,7 +156,7 @@
                     <span style="color:#f1c40f">${Math.floor(user.balance).toLocaleString()} V</span>
                 </div>`;
             });
-            document.getElementById('leaderboard-list').innerHTML = html || "Пока никого нет...";
+            document.getElementById('leaderboard-list').innerHTML = html || "Пока пусто...";
         });
     }
 
