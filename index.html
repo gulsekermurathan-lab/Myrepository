@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bikoin Clicker - Лидеры</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(180deg, #1a1a1a 0%, #000000 100%);
+            color: white;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* Шапка */
+        .header {
+            padding: 20px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Контентные зоны */
+        .tab-content {
+            flex: 1;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .active { display: flex; }
+
+        /* Вкладка ИГРА */
+        #balance {
+            font-size: 48px;
+            font-weight: bold;
+            color: #00ff88;
+            text-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+            margin-bottom: 10px;
+        }
+
+        .coin {
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, #ffcc00 0%, #ff9900 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 80px;
+            box-shadow: 0 0 50px rgba(255, 153, 0, 0.4);
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        .coin:active { transform: scale(0.95); }
+
+        /* Вкладка ЛИДЕРЫ */
+        .leaderboard {
+            width: 100%;
+            max-width: 400px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 10px;
+        }
+
+        .leader-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .rank { width: 30px; font-weight: bold; font-size: 18px; }
+        .name { flex: 1; margin-left: 10px; font-size: 18px; }
+        .score { color: #00ff88; font-weight: bold; }
+
+        /* Навигация */
+        .nav {
+            display: flex;
+            background: #111;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 10px 0;
+        }
+
+        .nav-item {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            color: #888;
+            cursor: pointer;
+        }
+
+        .nav-item.active-nav { color: #00ff88; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div id="username">Загрузка...</div>
+    </div>
+
+    <div id="game-tab" class="tab-content active">
+        <div id="balance">0 ₸</div>
+        <div class="coin" onclick="clickCoin()">₿</div>
+    </div>
+
+    <div id="leaders-tab" class="tab-content">
+        <h2>ТОП МАГНАТОВ</h2>
+        <div class="leaderboard">
+            <div class="leader-item">
+                <div class="rank">🥇</div>
+                <div class="name">@Stalin91</div>
+                <div class="score">1.5M</div>
+            </div>
+            <div class="leader-item">
+                <div class="rank">🥈</div>
+                <div class="name">Akesu_King</div>
+                <div class="score">1.2M</div>
+            </div>
+            <div class="leader-item">
+                <div class="rank">🥉</div>
+                <div class="name">Bereke_Rich</div>
+                <div class="score">800K</div>
+            </div>
+            <div class="leader-item">
+                <div class="rank">4</div>
+                <div class="name">Pavlodar_7182</div>
+                <div class="score">500K</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="nav">
+        <div class="nav-item active-nav" onclick="showTab('game')">🎮 Игра</div>
+        <div class="nav-item" onclick="showTab('leaders')">🏆 Топ</div>
+    </div>
+
+    <script>
+        let tg = window.Telegram.WebApp;
+        tg.expand();
+        
+        let score = localStorage.getItem('score') ? parseInt(localStorage.getItem('score')) : 0;
+        document.getElementById('balance').innerText = score + ' ₸';
+        document.getElementById('username').innerText = tg.initDataUnsafe.user ? '@' + tg.initDataUnsafe.user.username : '@User';
+
+        function clickCoin() {
+            score += 100;
+            document.getElementById('balance').innerText = score + ' ₸';
+            localStorage.setItem('score', score);
+            tg.HapticFeedback.impactOccurred('medium');
+        }
+
+        function showTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active-nav'));
+
+            if (tab === 'game') {
+                document.getElementById('game-tab').classList.add('active');
+                event.currentTarget.classList.add('active-nav');
+            } else {
+                document.getElementById('leaders-tab').classList.add('active');
+                event.currentTarget.classList.add('active-nav');
+            }
+        }
+    </script>
+</body>
+</html>
