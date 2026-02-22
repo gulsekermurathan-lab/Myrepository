@@ -3,76 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Bikoin Clicker Pro</title>
+    <title>Bikoin Evolution: Firebase Edition</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <style>
-        body { font-family: sans-serif; background: #1a1a1a; color: white; text-align: center; margin: 0; padding: 0; overflow: hidden; }
-        .header { background: #333; padding: 15px; font-weight: bold; font-size: 1.2em; border-bottom: 2px solid #f39c12; }
-        #balance { font-size: 2.5em; margin: 20px 0; color: #f1c40f; }
-        .coin { width: 200px; cursor: pointer; transition: transform 0.1s; -webkit-tap-highlight-color: transparent; }
-        .coin:active { transform: scale(0.95); }
-        .tabs { display: flex; position: fixed; bottom: 0; width: 100%; background: #222; border-top: 2px solid #333; }
-        .tab { flex: 1; padding: 15px; cursor: pointer; border-right: 1px solid #333; }
-        .tab.active { background: #f39c12; color: black; font-weight: bold; }
-        .content { display: none; padding: 20px; height: 70vh; overflow-y: auto; }
+        body { font-family: sans-serif; background: #000; color: #fff; text-align: center; margin: 0; padding: 0; overflow: hidden; }
+        .header { background: #111; padding: 15px; border-bottom: 2px solid #f1c40f; color: #f1c40f; font-weight: bold; }
+        #balance { font-size: 2.5em; margin: 15px 0; text-shadow: 0 0 10px #f1c40f; }
+        .coin-container { height: 250px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .coin { width: 200px; cursor: pointer; transition: transform 0.1s; filter: drop-shadow(0 0 15px rgba(241,196,15,0.5)); }
+        .coin:active { transform: scale(0.9); }
+        #rank-badge { background: #f1c40f; color: #000; padding: 5px 15px; border-radius: 20px; font-weight: bold; margin-top: 10px; font-size: 0.8em; }
+        .tabs { display: flex; position: fixed; bottom: 0; width: 100%; background: #111; height: 70px; border-top: 1px solid #333; }
+        .tab { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #666; font-size: 0.8em; cursor: pointer; }
+        .tab.active { color: #f1c40f; }
+        .content { display: none; padding: 20px; height: 65vh; overflow-y: auto; }
         .content.active { display: block; }
-        .upgrade-card { background: #333; padding: 15px; margin: 10px 0; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; }
-        .btn { background: #f39c12; color: black; border: none; padding: 10px 15px; border-radius: 5px; font-weight: bold; cursor: pointer; }
-        .btn:disabled { background: #555; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { padding: 10px; border-bottom: 1px solid #444; text-align: left; }
+        .upgrade-card { background: #1a1a1a; padding: 12px; margin: 8px 0; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #333; }
+        .btn { background: #f1c40f; color: #000; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; }
+        .leader-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #222; }
     </style>
 </head>
 <body>
 
-<div class="header">💰 @<span id="username">Player</span></div>
+<div class="header">🚲 @<span id="username">Guest</span></div>
 <div id="balance">0 ₸</div>
 
 <div id="game-tab" class="content active">
-    <img src="https://cdn-icons-png.flaticon.com/512/2491/2491744.png" class="coin" onclick="clickCoin()">
-    <p>Доход в сек: <span id="cps">0</span> ₸</p>
-    <p>Клик: <span id="cpc">1</span> ₸</p>
+    <div class="coin-container">
+        <img id="bike-img" src="https://cdn-icons-png.flaticon.com/512/2972/2972185.png" class="coin" onclick="clickCoin()">
+        <div id="rank-badge">Ранг: Уралец</div>
+    </div>
+    <div style="margin-top: 20px; color: #aaa;">Клик: <span id="cpc">1</span> | Авто: <span id="cps">0</span></div>
 </div>
 
 <div id="shop-tab" class="content">
-    <h3>Улучшения</h3>
+    <h2 style="color: #f1c40f;">Мастерская Акесу</h2>
     <div class="upgrade-card">
-        <div><strong>Сила клика</strong><br><small>+1 за клик</small></div>
+        <div><strong>Турбо-педали</strong><br><small>Клик +1</small></div>
         <button class="btn" onclick="buyUpgrade('click')" id="upg-click">50 ₸</button>
     </div>
     <div class="upgrade-card">
-        <div><strong>Авто-майнер</strong><br><small>+2 ₸ в сек</small></div>
+        <div><strong>Смазка цепи</strong><br><small>Авто +2/с</small></div>
         <button class="btn" onclick="buyUpgrade('auto')" id="upg-auto">200 ₸</button>
     </div>
 </div>
 
 <div id="top-tab" class="content">
-    <h3>🏆 Топ игроков Акесу</h3>
-    <table>
-        <tr><th>Место</th><th>Игрок</th><th>Баланс</th></tr>
-        <tr style="color: #f1c40f;"><td>1</td><td>@Stalin91</td><td>1,500,000 ₸</td></tr>
-        <tr><td>2</td><td>Berik_PVL</td><td>850,000 ₸</td></tr>
-        <tr><td>3</td><td>Akesu_King</td><td>420,000 ₸</td></tr>
-    </table>
+    <h2 style="color: #f1c40f;">🏆 Топ Лидеров</h2>
+    <div id="leaderboard-list">Загрузка...</div>
 </div>
 
 <div class="tabs">
-    <div class="tab active" onclick="openTab('game-tab', this)">Игра</div>
-    <div class="tab" onclick="openTab('shop-tab', this)">Магазин</div>
-    <div class="tab" onclick="openTab('top-tab', this)">Топ</div>
+    <div class="tab active" onclick="openTab('game-tab', this)">🚀 КЛИК</div>
+    <div class="tab" onclick="openTab('shop-tab', this)">🛠️ ТЮНИНГ</div>
+    <div class="tab" onclick="openTab('top-tab', this)">🏆 ТОП</div>
 </div>
 
 <script>
+    // --- КОНФИГУРАЦИЯ FIREBASE ---
+    const firebaseConfig = {
+        apiKey: "AIzaSyDR4dwkwzvM_-jpfwC4E4YWg-kXOh2EvHo",
+        authDomain: "stalinclicker.firebaseapp.com",
+        projectId: "stalinclicker",
+        storageBucket: "stalinclicker.firebasestorage.app",
+        messagingSenderId: "266501925938",
+        appId: "1:266501925938:web:a4aeba79507602d8c2202b"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // --- ЛОГИКА ИГРЫ ---
     let tg = window.Telegram.WebApp;
     tg.expand();
-    let user = tg.initDataUnsafe?.user?.username || "Player";
-    document.getElementById('username').innerText = user;
+    let userId = tg.initDataUnsafe?.user?.id || "local_user";
+    let userName = tg.initDataUnsafe?.user?.username || "Gamer";
+    document.getElementById('username').innerText = userName;
 
     let balance = 0;
     let clickPower = 1;
     let autoPower = 0;
     let clickCost = 50;
     let autoCost = 200;
+
+    // Загрузка данных из Firebase при старте
+    db.ref('users/' + userId).once('value').then((snapshot) => {
+        if (snapshot.exists()) {
+            let data = snapshot.val();
+            balance = data.balance || 0;
+            clickPower = data.clickPower || 1;
+            autoPower = data.autoPower || 0;
+            clickCost = data.clickCost || 50;
+            autoCost = data.autoCost || 200;
+            updateUI();
+        }
+    });
+
+    function saveToDB() {
+        db.ref('users/' + userId).set({
+            username: userName,
+            balance: Math.floor(balance),
+            clickPower: clickPower,
+            autoPower: autoPower,
+            clickCost: clickCost,
+            autoCost: autoCost,
+            lastUpdate: Date.now()
+        });
+    }
 
     function updateUI() {
         document.getElementById('balance').innerText = Math.floor(balance).toLocaleString() + ' ₸';
@@ -87,34 +125,63 @@
     function clickCoin() {
         balance += clickPower;
         updateUI();
+        saveToDB();
+        if (window.navigator.vibrate) window.navigator.vibrate(10);
     }
 
     function buyUpgrade(type) {
         if (type === 'click' && balance >= clickCost) {
             balance -= clickCost;
             clickPower += 1;
-            clickCost = Math.floor(clickCost * 1.5);
+            clickCost = Math.floor(clickCost * 1.6);
         } else if (type === 'auto' && balance >= autoCost) {
             balance -= autoCost;
             autoPower += 2;
-            autoCost = Math.floor(autoCost * 1.6);
+            autoCost = Math.floor(autoCost * 1.7);
         }
         updateUI();
+        saveToDB();
     }
 
-    setInterval(() => {
-        balance += autoPower / 10;
-        updateUI();
+    // Обновление Лидерборда
+    function updateLeaderboard() {
+        db.ref('users').orderByChild('balance').limitToLast(10).once('value', (snapshot) => {
+            let list = [];
+            snapshot.forEach((child) => {
+                list.push(child.val());
+            });
+            list.reverse();
+            let html = '';
+            list.forEach((user, index) => {
+                html += `<div class="leader-item">
+                    <span>${index + 1}. @${user.username}</span>
+                    <span style="color:#f1c40f">${Math.floor(user.balance).toLocaleString()} ₸</span>
+                </div>`;
+            });
+            document.getElementById('leaderboard-list').innerHTML = html;
+        });
+    }
+
+    setInterval(() => { 
+        if (autoPower > 0) {
+            balance += autoPower / 10; 
+            updateUI(); 
+        }
     }, 100);
+
+    // Сохранение в базу каждые 5 секунд, чтобы не спамить
+    setInterval(saveToDB, 5000);
 
     function openTab(id, el) {
         document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         document.getElementById(id).classList.add('active');
         el.classList.add('active');
+        if (id === 'top-tab') updateLeaderboard();
     }
 
     updateUI();
 </script>
 </body>
 </html>
+
