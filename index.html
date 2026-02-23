@@ -1,49 +1,50 @@
-        let score = parseInt(localStorage.getItem('kbn_score')) || 0;
-        let perClick = parseInt(localStorage.getItem('kbn_perClick')) || 1;
-        let energy = 1000;
+// Память нашего штаба
+let score = parseInt(localStorage.getItem('kbn_score')) || 0;
+let perClick = parseInt(localStorage.getItem('kbn_perClick')) || 1;
+let energy = parseInt(localStorage.getItem('kbn_energy')) || 1000;
 
-        function showScreen(id) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            document.getElementById('btn-' + id).classList.add('active');
-        }
+// Функция переключения между Игрой, Магазином и Топом
+function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    
+    document.getElementById(id).classList.add('active');
+    // Чтобы кнопка внизу подсвечивалась
+    const activeBtn = document.querySelector(`[onclick="showScreen('${id}')"]`);
+    if (activeBtn) activeBtn.classList.add('active');
+}
 
-        function clickCoin(event) {
-            if (energy > 0) {
-                score += perClick;
-                energy -= 1;
-                updateDisplay();
-                saveData(); // Сохраняем каждый клик!
-                let img = document.getElementById('coin');
-                img.style.transform = "scale(0.92)";
-                setTimeout(() => img.style.transform = "scale(1)", 100);
-            }
-        }
-
-        function updateDisplay() {
-            document.getElementById('score').innerText = score + " V";
-            document.getElementById('top-score').innerText = score + " V";
-            document.getElementById('energy').style.width = (energy / 10) + "%";
-            document.getElementById('energy-text').innerText = "⚡ " + energy + " / 1000";
-        }
-
-        function upgrade() {
-            if (score >= 50) {
-                score -= 50;
-                perClick++;
-                updateDisplay();
-                saveData(); // Сохраняем покупку!
-                alert("Уровень клика повышен!");
-            }
-        }
-
-        function saveData() {
-            localStorage.setItem('kbn_score', score);
-            localStorage.setItem('kbn_perClick', perClick);
-        }
-
-        // Запускаем обновление экрана при старте
+function clickCoin() {
+    if (energy > 0) {
+        score += perClick;
+        energy -= 1;
         updateDisplay();
+        saveData(); // Сохраняем честный труд
+    }
+}
 
-        setInterval(() => { if (energy < 1000) { energy += 1; updateDisplay(); } }, 1500);
+function updateDisplay() {
+    // Обновляем все цифры V на всех экранах
+    document.querySelectorAll('#score').forEach(el => el.innerText = score + " V");
+    document.getElementById('energy-text').innerText = "⚡ " + energy + " / 1000";
+    let energyBar = document.getElementById('energy');
+    if (energyBar) energyBar.style.width = (energy / 10) + "%";
+}
+
+function saveData() {
+    localStorage.setItem('kbn_score', score);
+    localStorage.setItem('kbn_perClick', perClick);
+    localStorage.setItem('kbn_energy', energy);
+}
+
+// Запуск при входе
+updateDisplay();
+
+// Регенерация энергии в Береке
+setInterval(() => { 
+    if (energy < 1000) { 
+        energy += 1; 
+        updateDisplay(); 
+        saveData(); 
+    } 
+}, 1500);
