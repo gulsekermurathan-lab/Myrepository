@@ -1,54 +1,104 @@
-<script>
-// Данные игрока
-let score = parseInt(localStorage.getItem('kbn_score')) || 0;
-let perClick = parseInt(localStorage.getItem('kbn_perClick')) || 1;
-let energy = parseInt(localStorage.getItem('kbn_energy')) || 1000;
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bikoin Clicker</title>
+    <style>
+        body { background: #000; color: #fff; font-family: sans-serif; text-align: center; margin: 0; overflow: hidden; }
+        .screen { display: none; padding: 20px; }
+        .active { display: block; }
+        #coin { width: 200px; transition: 0.1s; cursor: pointer; margin-top: 50px; }
+        .energy-container { width: 80%; background: #333; height: 10px; border-radius: 5px; margin: 20px auto; }
+        #energy { background: #ff0; height: 100%; width: 100%; border-radius: 5px; transition: 0.3s; }
+        .nav { position: fixed; bottom: 0; width: 100%; background: #111; display: flex; justify-content: space-around; padding: 10px 0; }
+        .tab-btn { color: #888; text-decoration: none; font-size: 14px; }
+        .tab-btn.active { color: #ff0; font-weight: bold; }
+        .shop-item { background: #222; margin: 10px; padding: 15px; border-radius: 10px; }
+        .leader { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #222; }
+    </style>
+</head>
+<body>
 
-// Переключение экранов
-function showScreen(id) {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    
-    const target = document.getElementById(id);
-    if (target) target.classList.add('active');
+    <div id="game" class="screen active">
+        <h1 id="score">0 V</h1>
+        <img id="coin" src="https://gulsekermurathan-lab.github.io/Myrepository/coin.png" onclick="clickCoin()" alt="Coin">
+        <div class="energy-container">
+            <div id="energy"></div>
+        </div>
+        <p id="energy-text">⚡ 1000 / 1000</p>
+    </div>
 
-    const btn = document.querySelector(`[onclick="showScreen('${id}')"]`);
-    if (btn) btn.classList.add('active');
-}
+    <div id="shop" class="screen">
+        <h2>Мастерская</h2>
+        <div class="shop-item">
+            <h3>Улучшение клика</h3>
+            <p>Цена: 50 V</p>
+            <button onclick="upgrade()">Купить (+1)</button>
+        </div>
+    </div>
 
-// Клик
-function clickCoin() {
-    if (energy > 0) {
-        score += perClick;
-        energy -= 1;
+    <div id="top" class="screen">
+        <h2>Топ Игроков</h2>
+        <div class="leader"><span>1. @Stalin91</span><span>999,999 V</span></div>
+        <div class="leader"><span>2. @Hacker_KZ</span><span>500,000 V</span></div>
+        <div class="leader"><span>3. Ты</span><span id="top-score">0 V</span></div>
+    </div>
+
+    <div class="nav">
+        <div class="tab-btn active" onclick="showScreen('game')">ИГРА</div>
+        <div class="tab-btn" onclick="showScreen('shop')">МАГАЗИН</div>
+        <div class="tab-btn" onclick="showScreen('top')">ТОП</div>
+    </div>
+
+    <script>
+        let score = parseInt(localStorage.getItem('kbn_score')) || 0;
+        let perClick = parseInt(localStorage.getItem('kbn_perClick')) || 1;
+        let energy = parseInt(localStorage.getItem('kbn_energy')) || 1000;
+
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+
+        function clickCoin() {
+            if (energy > 0) {
+                score += perClick;
+                energy -= 1;
+                updateDisplay();
+                saveData();
+                document.getElementById('coin').style.transform = "scale(0.95)";
+                setTimeout(() => document.getElementById('coin').style.transform = "scale(1)", 100);
+            }
+        }
+
+        function upgrade() {
+            if (score >= 50) {
+                score -= 50;
+                perClick++;
+                updateDisplay();
+                saveData();
+                alert("Уровень повышен!");
+            }
+        }
+
+        function updateDisplay() {
+            document.getElementById('score').innerText = score + " V";
+            document.getElementById('top-score').innerText = score + " V";
+            document.getElementById('energy-text').innerText = "⚡ " + energy + " / 1000";
+            document.getElementById('energy').style.width = (energy / 10) + "%";
+        }
+
+        function saveData() {
+            localStorage.setItem('kbn_score', score);
+            localStorage.setItem('kbn_perClick', perClick);
+            localStorage.setItem('kbn_energy', energy);
+        }
+
         updateDisplay();
-        saveData();
-    }
-}
-
-// Обновление цифр
-function updateDisplay() {
-    document.querySelectorAll('#score').forEach(el => el.innerText = score + " V");
-    const enText = document.getElementById('energy-text');
-    if (enText) enText.innerText = "⚡ " + energy + " / 1000";
-    const bar = document.getElementById('energy');
-    if (bar) bar.style.width = (energy / 10) + "%";
-}
-
-// Сохранение
-function saveData() {
-    localStorage.setItem('kbn_score', score);
-    localStorage.setItem('kbn_perClick', perClick);
-    localStorage.setItem('kbn_energy', energy);
-}
-
-// Запуск
-updateDisplay();
-setInterval(() => { 
-    if (energy < 1000) { 
-        energy += 1; 
-        updateDisplay(); 
-        saveData(); 
-    } 
-}, 1500);
-</script>
+        setInterval(() => { if (energy < 1000) { energy += 1; updateDisplay(); saveData(); } }, 1500);
+    </script>
+</body>
+</html>
