@@ -3,66 +3,130 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Bikoin Clicker KBN</title>
+    <title>Bikoin KBN</title>
     <style>
-        body { background-color: #000; color: white; text-align: center; font-family: sans-serif; overflow: hidden; margin: 0; }
-        #score { font-size: 48px; margin-top: 20px; font-weight: bold; color: #00d2ff; }
-        .coin-container { position: relative; display: inline-block; margin-top: 50px; }
-        #coin { width: 250px; cursor: pointer; transition: transform 0.1s; -webkit-tap-highlight-color: transparent; }
-        #coin:active { transform: scale(0.95); }
-        .plus-one { position: absolute; color: #fff; font-size: 24px; font-weight: bold; animation: flyUp 0.5s ease-out forwards; pointer-events: none; }
-        @keyframes flyUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-100px); } }
-        #leaderboard { margin-top: 30px; background: #111; padding: 10px; border-radius: 10px; border: 1px solid #333; width: 80%; margin-left: 10%; }
-        .ad-block { margin-top: 20px; min-height: 50px; background: #222; border: 1px dashed #555; }
+        body { background-color: #000; color: #fff; text-align: center; font-family: 'Arial', sans-serif; margin: 0; padding: 0; }
+        .header { padding: 10px; font-size: 20px; color: #ffcc00; background: #111; border-bottom: 1px solid #333; }
+        
+        /* Вкладки как в видео */
+        .tabs { display: flex; justify-content: space-around; background: #111; padding: 10px 0; border-bottom: 2px solid #ffcc00; }
+        .tab-btn { color: #888; background: none; border: none; font-size: 14px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        .tab-btn.active { color: #ffcc00; border-bottom: 2px solid #ffcc00; }
+
+        .screen { display: none; padding: 20px; padding-bottom: 80px; }
+        .screen.active { display: block; }
+
+        /* Игровой экран */
+        #score { font-size: 48px; margin: 20px 0; color: #fff; font-weight: bold; }
+        .coin-container { margin: 20px auto; width: 220px; height: 220px; position: relative; }
+        #coin { width: 100%; transition: transform 0.1s; -webkit-tap-highlight-color: transparent; }
+        #coin:active { transform: scale(0.92); }
+
+        .energy-bar { width: 85%; height: 18px; background: #333; border-radius: 10px; margin: 20px auto; overflow: hidden; border: 1px solid #555; }
+        .energy-fill { width: 100%; height: 100%; background: linear-gradient(to right, #ffcc00, #ff6600); transition: width 0.3s; }
+
+        /* Мастерская */
+        .shop-item { background: #1a1a1a; border: 1px solid #333; padding: 15px; margin: 10px 0; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .shop-info { text-align: left; }
+        .shop-info b { color: #ffcc00; display: block; }
+        .buy-btn { background: #ffcc00; color: #000; border: none; padding: 8px 15px; border-radius: 8px; font-weight: bold; }
+
+        /* Таблица лидеров */
+        .leader-item { display: flex; justify-content: space-between; padding: 12px; background: #1a1a1a; margin-bottom: 5px; border-radius: 8px; }
+        
+        .ad-footer { position: fixed; bottom: 0; width: 100%; background: #111; padding: 15px; border-top: 1px solid #333; color: #888; font-size: 14px; }
     </style>
 </head>
 <body>
 
-    <div id="score">0</div>
+    <div class="header">🎮 @Stalin91</div>
 
-    <div class="coin-container">
-        <img id="coin" src="coin.png" alt="CLICK ME" onclick="clickCoin(event)">
+    <div class="tabs">
+        <button id="btn-game" class="tab-btn active" onclick="showScreen('game')">Игра</button>
+        <button id="btn-shop" class="tab-btn" onclick="showScreen('shop')">Мастерская</button>
+        <button id="btn-top" class="tab-btn" onclick="showScreen('top')">Топ</button>
     </div>
 
-    <div id="leaderboard">
-        <h3>ТОП ИГРОКОВ (Береке)</h3>
-        <div id="best-score">Твой рекорд: 0</div>
+    <div id="game" class="screen active">
+        <div id="score">0 V</div>
+        <div class="coin-container">
+            <img id="coin" src="coin.png" alt="KBN COIN" onclick="clickCoin(event)">
+        </div>
+        <div class="energy-bar"><div id="energy" class="energy-fill"></div></div>
+        <div id="energy-text">⚡ 1000 / 1000</div>
+        <div style="margin-top: 10px; color: #888;">Клик: +1 | Авто: 0</div>
     </div>
 
-    <div class="ad-block">
-        <script>/* Сюда вставь скрипт от блока 23535 */</script>
-        AD BLOCK ID: 23535
+    <div id="shop" class="screen">
+        <h2 style="color: #ffcc00;">Мастерская</h2>
+        <div class="shop-item">
+            <div class="shop-info"><b>Улучшение клика</b>Клик +1</div>
+            <button class="buy-btn" onclick="upgrade()">50 V</button>
+        </div>
+        <div class="shop-item">
+            <div class="shop-info"><b>Авто-майнер</b>Авто +2/сек</div>
+            <button class="buy-btn" style="opacity: 0.5;">200 V</button>
+        </div>
     </div>
+
+    <div id="top" class="screen">
+        <h2 style="color: #ffcc00;">🏆 Топ Игроков</h2>
+        <div class="leader-item"><span>1. @Stalin91</span> <span id="top-score">0 V</span></div>
+        <div class="leader-item" style="opacity: 0.5;"><span>2. Player_2</span> <span>0 V</span></div>
+    </div>
+
+    <div class="ad-footer">AD BLOCK ID: 23535</div>
 
     <script>
         let score = 0;
-        let bestScore = localStorage.getItem('bestScore') || 0;
-        const scoreDisplay = document.getElementById('score');
-        const bestDisplay = document.getElementById('best-score');
+        let perClick = 1;
+        let energy = 1000;
 
-        bestDisplay.innerText = "Твой рекорд: " + bestScore;
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.getElementById('btn-' + id).classList.add('active');
+        }
 
         function clickCoin(event) {
-            score++;
-            scoreDisplay.innerText = score;
-
-            // Исправляем рекорд
-            if (score > bestScore) {
-                bestScore = score;
-                localStorage.setItem('bestScore', bestScore);
-                bestDisplay.innerText = "Твой рекорд: " + bestScore;
+            if (energy > 0) {
+                score += perClick;
+                energy -= 1;
+                updateDisplay();
+                
+                // Эффект нажатия
+                let img = document.getElementById('coin');
+                img.style.transform = "scale(0.92)";
+                setTimeout(() => img.style.transform = "scale(1)", 100);
             }
-
-            // Анимация +1 (убираем мертвый клик)
-            const plus = document.createElement('div');
-            plus.innerText = '+1';
-            plus.className = 'plus-one';
-            plus.style.left = event.clientX - 10 + 'px';
-            plus.style.top = event.clientY - 40 + 'px';
-            document.body.appendChild(plus);
-
-            setTimeout(() => { plus.remove(); }, 500);
         }
+
+        function updateDisplay() {
+            document.getElementById('score').innerText = score + " V";
+            document.getElementById('top-score').innerText = score + " V";
+            document.getElementById('energy').style.width = (energy / 10) + "%";
+            document.getElementById('energy-text').innerText = "⚡ " + energy + " / 1000";
+        }
+
+        function upgrade() {
+            if (score >= 50) {
+                score -= 50;
+                perClick++;
+                updateDisplay();
+                alert("Уровень клика повышен!");
+            } else {
+                alert("Нужно 50 V!");
+            }
+        }
+
+        // Регенерация энергии
+        setInterval(() => {
+            if (energy < 1000) {
+                energy += 1;
+                updateDisplay();
+            }
+        }, 1500);
     </script>
 </body>
 </html>
