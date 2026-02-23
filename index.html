@@ -3,110 +3,205 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bikoin Clicker</title>
+    <title>Bikoin Clicker | Official Admin Build</title>
     <style>
-        body { background: #000; color: #fff; font-family: sans-serif; text-align: center; margin: 0; padding: 0; overflow: hidden; }
-        .screen { display: none; padding: 20px; height: 85vh; }
-        .active { display: block; }
-        #coin { width: 220px; transition: 0.1s; cursor: pointer; margin-top: 50px; -webkit-tap-highlight-color: transparent; }
-        .energy-container { width: 80%; background: #333; height: 12px; border-radius: 10px; margin: 20px auto; overflow: hidden; }
-        #energy-bar { background: linear-gradient(90deg, #ff0, #ffa500); height: 100%; width: 100%; transition: 0.2s; }
-        .nav { position: fixed; bottom: 0; width: 100%; background: #1a1a1a; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #333; }
-        .tab-btn { color: #888; font-size: 14px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
-        .active-tab { color: #ff0; }
-        .shop-item { background: #111; margin: 15px; padding: 20px; border-radius: 15px; border: 1px solid #ff0; }
-        button { background: #ff0; color: #000; border: none; padding: 10px 25px; border-radius: 8px; font-weight: bold; }
-        .leader { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #222; }
+        :root {
+            --red: #ff0000;
+            --green: #00ff00;
+            --blue: #0000ff;
+        }
+
+        body { 
+            background-color: #0a0a0a; 
+            color: white; 
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            text-align: center; 
+            margin: 0; 
+            overflow: hidden; 
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        #game-container { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            height: 100vh;
+            background: radial-gradient(circle, #1a1a1a 0%, #000 100%);
+        }
+
+        /* Анимация баланса */
+        #balance { 
+            font-size: 56px; 
+            font-weight: bold;
+            margin: 10px 0; 
+            color: #fff; 
+            text-shadow: 0 0 20px rgba(255, 255, 0, 0.7);
+            transition: transform 0.05s;
+        }
+
+        /* Облик монеты */
+        .coin-wrapper { position: relative; }
+        .coin-btn { 
+            width: 240px; 
+            height: 240px;
+            cursor: pointer; 
+            filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.3));
+            transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+        }
+        .coin-btn:active { transform: scale(0.92); }
+
+        /* Навигация */
+        .nav-bar { 
+            position: fixed; 
+            bottom: 0; 
+            width: 100%; 
+            display: flex; 
+            justify-content: space-around; 
+            background: rgba(20, 20, 20, 0.95); 
+            padding: 20px 0; 
+            border-top: 1px solid #333;
+            backdrop-filter: blur(10px);
+        }
+        .nav-btn { 
+            color: #888; 
+            text-decoration: none; 
+            font-size: 12px; 
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer; 
+            transition: 0.3s;
+        }
+        .nav-btn.active-nav { color: #ff0; text-shadow: 0 0 10px #ff0; }
+
+        /* Экраны */
+        .screen { display: none; padding: 20px; width: 100%; box-sizing: border-box; }
+        .active { display: block; animation: fadeIn 0.4s ease; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* RGB Админ-стиль (Без лишних цветов!) */
+        @keyframes rgb-power {
+            0% { border-color: var(--red); box-shadow: 0 0 20px var(--red); color: var(--red); }
+            33% { border-color: var(--green); box-shadow: 0 0 20px var(--green); color: var(--green); }
+            66% { border-color: var(--blue); box-shadow: 0 0 20px var(--blue); color: var(--blue); }
+            100% { border-color: var(--red); box-shadow: 0 0 20px var(--red); color: var(--red); }
+        }
+
+        .leader-item { 
+            background: rgba(255, 255, 255, 0.03); 
+            border: 1px solid #222; 
+            padding: 20px; 
+            border-radius: 16px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin: 15px auto;
+            max-width: 320px;
+        }
+        
+        .admin-tag {
+            animation: rgb-power 1.2s steps(3) infinite;
+            background: rgba(0, 0, 0, 0.8) !important;
+            border: 2px solid;
+            font-weight: 900;
+        }
+
+        /* Всплывающие цифры при клике */
+        .plus-one {
+            position: absolute;
+            color: #0f0;
+            font-weight: bold;
+            font-size: 24px;
+            pointer-events: none;
+            animation: floatUp 0.6s ease-out forwards;
+        }
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-100px); }
+        }
     </style>
 </head>
 <body>
 
-    <div id="game" class="screen active">
-        <h1 id="score-display">0 V</h1>
-        <img id="coin" src="https://gulsekermurathan-lab.github.io/Myrepository/coin.png" onclick="clickCoin()" alt="Coin">
-        <div class="energy-container"><div id="energy-bar"></div></div>
-        <p id="energy-text">⚡ 1000 / 1000</p>
-    </div>
-
-    <div id="shop" class="screen">
-        <h2>Мастерская</h2>
-        <div class="shop-item">
-            <h3>Улучшение клика</h3>
-            <p>Цена: 50 V</p>
-            <button onclick="buyUpgrade()">КУПИТЬ (+1)</button>
+<div id="game-container">
+    <div id="home" class="screen active">
+        <div id="balance">0 V</div>
+        <div class="coin-wrapper" id="coin-area">
+            <img src="https://i.ibb.co/LzN7zYv/bikoin.png" class="coin-btn" id="clicker" alt="Bikoin">
         </div>
+        <p style="color: #444; margin-top: 30px; font-size: 14px;">Тапай, чтобы копить энергию</p>
     </div>
 
     <div id="top" class="screen">
-        <h2>Топ Игроков</h2>
-        <div class="leader"><span>1. @Stalin91</span><span>999,999 V</span></div>
-        <div class="leader"><span>2. @Hacker_KZ</span><span>500,000 V</span></div>
-        <div class="leader"><span>3. Ты</span><span id="my-top-score">0 V</span></div>
+        <h2 style="color: #ff0; letter-spacing: 3px;">РЕЙТИНГ МАЙНЕРОВ</h2>
+        <div class="leader-item admin-tag">
+            <span style="display: flex; align-items: center;">
+                <span style="font-size: 24px; margin-right: 10px;">👑</span>
+                ВЛАДЕЛЕЦ (ТЫ)
+            </span>
+            <span id="my-top-score" style="font-family: monospace; font-size: 18px;">0 V</span>
+        </div>
+        
+        <div style="margin-top: 40px; padding: 15px; border-radius: 10px; background: rgba(255,0,0,0.1); border: 1px solid rgba(255,0,0,0.2);">
+            <p style="margin: 0; font-size: 12px; color: #ff6666;">
+                <b>Внимание:</b> Все сторонние игроки и боты были удалены системой безопасности Admin Gun.
+            </p>
+        </div>
     </div>
 
-    <div class="nav">
-        <div id="btn-game" class="tab-btn active-tab" onclick="changeScreen('game')">ИГРА</div>
-        <div id="btn-shop" class="tab-btn" onclick="changeScreen('shop')">МАГАЗИН</div>
-        <div id="btn-top" class="tab-btn" onclick="changeScreen('top')">ТОП</div>
+    <div class="nav-bar">
+        <div class="nav-btn active-nav" id="nav-home" onclick="showScreen('home')">МАЙНИНГ</div>
+        <div class="nav-btn" id="nav-top" onclick="showScreen('top')">ЛИДЕРЫ</div>
     </div>
+</div>
 
-    <script>
-        let balance = parseInt(localStorage.getItem('kbn_score')) || 0;
-        let power = parseInt(localStorage.getItem('kbn_perClick')) || 1;
-        let stamina = parseInt(localStorage.getItem('kbn_energy')) || 1000;
+<script>
+    let score = parseInt(localStorage.getItem('score')) || 0;
+    const balanceDisplay = document.getElementById('balance');
+    const topScoreDisplay = document.getElementById('my-top-score');
+    const clicker = document.getElementById('clicker');
+    const coinArea = document.getElementById('coin-area');
 
-        function changeScreen(id) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active-tab'));
-            document.getElementById(id).classList.add('active');
-            document.getElementById('btn-' + id).classList.add('active-tab');
-        }
+    function updateDisplay() {
+        balanceDisplay.innerText = score.toLocaleString() + ' V';
+        topScoreDisplay.innerText = score.toLocaleString() + ' V';
+        localStorage.setItem('score', score);
+        
+        // Эффект увеличения баланса при клике
+        balanceDisplay.style.transform = "scale(1.1)";
+        setTimeout(() => balanceDisplay.style.transform = "scale(1)", 50);
+    }
 
-        function clickCoin() {
-            if (stamina > 0) {
-                balance += power;
-                stamina -= 1;
-                refreshUI();
-                save();
-                const img = document.getElementById('coin');
-                img.style.transform = "scale(0.9)";
-                setTimeout(() => img.style.transform = "scale(1)", 100);
-            }
-        }
+    clicker.addEventListener('click', (e) => {
+        score++;
+        updateDisplay();
+        createPlusOne(e.clientX, e.clientY);
+    });
 
-        function buyUpgrade() {
-            if (balance >= 50) {
-                balance -= 50;
-                power += 1;
-                refreshUI();
-                save();
-                alert("Прокачка прошла успешно!");
-            } else {
-                alert("Мало V-коинов!");
-            }
-        }
+    function createPlusOne(x, y) {
+        const el = document.createElement('div');
+        el.className = 'plus-one';
+        el.innerText = '+1';
+        el.style.left = (x - 10) + 'px';
+        el.style.top = (y - 40) + 'px';
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 600);
+    }
 
-        function refreshUI() {
-            document.getElementById('score-display').innerText = balance + " V";
-            document.getElementById('my-top-score').innerText = balance + " V";
-            document.getElementById('energy-text').innerText = "⚡ " + stamina + " / 1000";
-            document.getElementById('energy-bar').style.width = (stamina / 10) + "%";
-        }
+    function showScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active-nav'));
+        
+        document.getElementById(screenId).classList.add('active');
+        document.getElementById('nav-' + screenId).classList.add('active-nav');
+    }
 
-        function save() {
-            localStorage.setItem('kbn_score', balance);
-            localStorage.setItem('kbn_perClick', power);
-            localStorage.setItem('kbn_energy', stamina);
-        }
+    // Инициализация
+    updateDisplay();
+</script>
 
-        refreshUI();
-        setInterval(() => {
-            if (stamina < 1000) {
-                stamina += 1;
-                refreshUI();
-                save();
-            }
-        }, 1500);
-    </script>
 </body>
 </html>
