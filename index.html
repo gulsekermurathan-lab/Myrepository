@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bikoin Clicker: Special Edition</title>
+    <title>Bikoin Clicker: Official</title>
     
     <script src="https://sad.adsgram.ai/js/adsgram-ad-sdk.js"></script>
 
@@ -18,30 +18,26 @@
         body {
             background-color: var(--dark-bg);
             color: var(--text);
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Segoe UI', sans-serif;
             margin: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
-            overflow-x: hidden;
             padding-bottom: 50px;
+            user-select: none;
         }
 
-        /* Шапка со статистикой */
         .header {
             width: 100%;
             padding: 20px 0;
+            text-align: center;
             background: linear-gradient(180deg, #1a1a1a 0%, rgba(18,18,18,0) 100%);
-            position: sticky;
-            top: 0;
-            z-index: 10;
         }
 
         .balance-container {
             font-size: 42px;
             font-weight: 800;
             color: var(--gold);
-            text-shadow: 0 0 20px rgba(243, 156, 18, 0.4);
         }
 
         .stats-bar {
@@ -53,29 +49,19 @@
             color: #888;
         }
 
-        /* Монета */
         .coin-section {
-            margin: 40px 0;
-            position: relative;
+            margin: 30px 0;
         }
 
         #coin {
-            width: 240px;
-            height: 240px;
-            border-radius: 50%;
+            width: 220px;
             cursor: pointer;
             transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            filter: drop-shadow(0 0 30px rgba(243, 156, 18, 0.2));
             -webkit-tap-highlight-color: transparent;
         }
 
         #coin:active {
             transform: scale(0.9);
-        }
-
-        /* Кнопка рекламы */
-        .ad-container {
-            margin-bottom: 30px;
         }
 
         .btn-ad {
@@ -87,23 +73,20 @@
             font-size: 18px;
             font-weight: bold;
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
             animation: pulseAd 2s infinite;
         }
 
         @keyframes pulseAd {
-            0% { transform: scale(1); box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4); }
-            50% { transform: scale(1.05); box-shadow: 0 4px 25px rgba(231, 76, 60, 0.6); }
-            100% { transform: scale(1); box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4); }
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
         }
 
-        /* Магазин и Лидерборд */
         .section-title {
-            font-size: 20px;
+            font-size: 18px;
             margin: 20px 0 10px;
             color: var(--gold);
             text-transform: uppercase;
-            letter-spacing: 2px;
         }
 
         .card {
@@ -124,33 +107,21 @@
             border-bottom: 1px solid #2a2a2a;
         }
 
-        .upgrade-item:last-child { border-bottom: none; }
-
-        .upgrade-info { text-align: left; }
-        .upgrade-name { font-weight: bold; font-size: 16px; }
-        .upgrade-desc { font-size: 12px; color: #777; }
-
         .btn-buy {
             background: var(--gold);
             border: none;
             padding: 8px 15px;
             border-radius: 8px;
-            color: #000;
             font-weight: bold;
             cursor: pointer;
         }
 
         .btn-buy:disabled { background: #444; color: #888; }
 
-        /* Таблица лидеров */
-        .leader-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            font-size: 14px;
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-100px); }
         }
-
-        .rank-1 { color: #f1c40f; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -167,45 +138,40 @@
         <img id="coin" src="https://cdn-icons-png.flaticon.com/512/25/25228.png" alt="Bikoin">
     </div>
 
-    <div class="ad-container">
-        <button class="btn-ad" onclick="runRewardedAd()">📺 ВИДЕО БОНУС (+1000)</button>
-    </div>
+    <button class="btn-ad" onclick="runRewardedAd()">📺 ВИДЕО БОНУС (+1000)</button>
 
     <div class="section-title">Магазин</div>
     <div class="card">
         <div class="upgrade-item">
-            <div class="upgrade-info">
-                <div class="upgrade-name">Сила клика</div>
-                <div class="upgrade-desc">Увеличивает доход за клик</div>
-            </div>
+            <span>Сила клика</span>
             <button class="btn-buy" id="buyClick" onclick="upgrade(1)">50 💰</button>
         </div>
         <div class="upgrade-item">
-            <div class="upgrade-info">
-                <div class="upgrade-name">Ферма Bikoin</div>
-                <div class="upgrade-desc">Майнит монеты автоматически</div>
-            </div>
+            <span>Авто-ферма</span>
             <button class="btn-buy" id="buyFarm" onclick="upgrade(2)">250 💰</button>
         </div>
     </div>
 
-    <div class="section-title">Топ Майнеров</div>
-    <div class="card" id="leaderboard">
-        <div class="leader-row rank-1"><span>1. Ты</span><span id="playerScore">0</span></div>
-        <div class="leader-row"><span>2. Stalin_91</span><span>1,500,200</span></div>
-        <div class="leader-row"><span>3. CryptoNomad</span><span>890,400</span></div>
-        <div class="leader-row"><span>4. Pavlodar_King</span><span>450,000</span></div>
+    <div class="section-title">Топ Игроков</div>
+    <div class="card">
+        <div style="display:flex; justify-content: space-between; color: var(--gold); font-weight: bold;">
+            <span>1. ТЫ</span>
+            <span id="playerScore">0</span>
+        </div>
     </div>
 
     <script>
-        // Инициализация данных
-        let coins = parseFloat(localStorage.getItem('bk_coins')) || 0;
-        let pClick = parseFloat(localStorage.getItem('bk_pClick')) || 1;
-        let pSec = parseFloat(localStorage.getItem('bk_pSec')) || 0;
-        let costClick = parseFloat(localStorage.getItem('bk_cClick')) || 50;
-        let costFarm = parseFloat(localStorage.getItem('bk_cFarm')) || 250;
+        // Загрузка данных
+        let coins = parseFloat(localStorage.getItem('bk_v3_coins')) || 0;
+        let pClick = parseFloat(localStorage.getItem('bk_v3_pClick')) || 1;
+        let pSec = parseFloat(localStorage.getItem('bk_v3_pSec')) || 0;
+        let costClick = parseFloat(localStorage.getItem('bk_v3_cClick')) || 50;
+        let costFarm = parseFloat(localStorage.getItem('bk_v3_cFarm')) || 250;
 
-        // Элементы
+        // Если данные сломались, сбрасываем их
+        if (isNaN(coins)) coins = 0;
+        if (isNaN(pClick)) pClick = 1;
+
         const balEl = document.getElementById('balance');
         const pcEl = document.getElementById('perClick');
         const psEl = document.getElementById('perSec');
@@ -213,8 +179,62 @@
         const buyFarmBtn = document.getElementById('buyFarm');
         const playerScoreEl = document.getElementById('playerScore');
 
-        // Реклама Adsgram с твоим ID 23535
+        // ТВОЙ ID ИЗ ADSGRAM
         const AdController = window.Adsgram.init({ blockId: "23535" });
 
         function updateDisplay() {
-            balEl.innerText = Math.floor(coins).toLocaleString
+            balEl.innerText = Math.floor(coins).toLocaleString();
+            pcEl.innerText = pClick;
+            psEl.innerText = pSec.toFixed(1);
+            playerScoreEl.innerText = Math.floor(coins).toLocaleString();
+            
+            buyClickBtn.innerText = Math.floor(costClick) + " 💰";
+            buyFarmBtn.innerText = Math.floor(costFarm) + " 💰";
+            
+            buyClickBtn.disabled = coins < costClick;
+            buyFarmBtn.disabled = coins < costFarm;
+
+            localStorage.setItem('bk_v3_coins', coins);
+            localStorage.setItem('bk_v3_pClick', pClick);
+            localStorage.setItem('bk_v3_pSec', pSec);
+            localStorage.setItem('bk_v3_cClick', costClick);
+            localStorage.setItem('bk_v3_cFarm', costFarm);
+        }
+
+        document.getElementById('coin').onclick = (e) => {
+            coins += pClick;
+            
+            // Эффект цифр
+            const text = document.createElement('div');
+            text.innerText = `+${pClick}`;
+            text.style.cssText = `position:fixed; left:${e.clientX}px; top:${e.clientY}px; color:var(--gold); font-weight:bold; pointer-events:none; animation:floatUp 0.8s forwards;`;
+            document.body.appendChild(text);
+            setTimeout(() => text.remove(), 800);
+
+            updateDisplay();
+        };
+
+        function upgrade(type) {
+            if (type === 1 && coins >= costClick) {
+                coins -= costClick;
+                pClick += 1;
+                costClick *= 1.6;
+            } else if (type === 2 && coins >= costFarm) {
+                coins -= costFarm;
+                pSec += 2;
+                costFarm *= 1.8;
+            }
+            updateDisplay();
+        }
+
+        setInterval(() => {
+            if (pSec > 0) {
+                coins += pSec / 10;
+                updateDisplay();
+            }
+        }, 100);
+
+        async function runRewardedAd() {
+            try {
+                const result = await AdController.show();
+                if (result.done
