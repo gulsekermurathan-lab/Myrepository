@@ -1,43 +1,47 @@
-// Память нашего штаба
+<script>
+// 1. Память нашего штаба
 let score = parseInt(localStorage.getItem('kbn_score')) || 0;
 let perClick = parseInt(localStorage.getItem('kbn_perClick')) || 1;
 let energy = parseInt(localStorage.getItem('kbn_energy')) || 1000;
 
-// Функция переключения между Игрой, Магазином и Топом
+// 2. Функция переключения экранов (Лидерборд, Магазин)
 function showScreen(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     
-    document.getElementById(id).classList.add('active');
-    // Чтобы кнопка внизу подсвечивалась
+    const targetScreen = document.getElementById(id);
+    if (targetScreen) targetScreen.classList.add('active');
+
     const activeBtn = document.querySelector(`[onclick="showScreen('${id}')"]`);
     if (activeBtn) activeBtn.classList.add('active');
 }
 
+// 3. Честный клик
 function clickCoin() {
     if (energy > 0) {
         score += perClick;
         energy -= 1;
         updateDisplay();
-        saveData(); // Сохраняем честный труд
+        saveData();
     }
 }
 
+// 4. Обновление интерфейса
 function updateDisplay() {
-    // Обновляем все цифры V на всех экранах
     document.querySelectorAll('#score').forEach(el => el.innerText = score + " V");
     document.getElementById('energy-text').innerText = "⚡ " + energy + " / 1000";
     let energyBar = document.getElementById('energy');
     if (energyBar) energyBar.style.width = (energy / 10) + "%";
 }
 
+// 5. Сохранение данных
 function saveData() {
     localStorage.setItem('kbn_score', score);
     localStorage.setItem('kbn_perClick', perClick);
     localStorage.setItem('kbn_energy', energy);
 }
 
-// Запуск при входе
+// Запуск при старте
 updateDisplay();
 
 // Регенерация энергии в Береке
@@ -48,3 +52,4 @@ setInterval(() => {
         saveData(); 
     } 
 }, 1500);
+</script>
