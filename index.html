@@ -1,22 +1,112 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Bikoin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bikoin Clicker</title>
+    <style>
+        body { background: #000; color: #fff; font-family: sans-serif; text-align: center; margin: 0; padding: 0; overflow: hidden; }
+        .screen { display: none; padding: 20px; height: 85vh; }
+        .active { display: block; }
+        #coin { width: 220px; transition: 0.1s; cursor: pointer; margin-top: 50px; -webkit-tap-highlight-color: transparent; }
+        .energy-container { width: 80%; background: #333; height: 12px; border-radius: 10px; margin: 20px auto; overflow: hidden; }
+        #energy-bar { background: linear-gradient(90deg, #ff0, #ffa500); height: 100%; width: 100%; transition: 0.2s; }
+        .nav { position: fixed; bottom: 0; width: 100%; background: #1a1a1a; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #333; }
+        .tab-btn { color: #888; font-size: 14px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        .active-tab { color: #ff0; }
+        .shop-item { background: #111; margin: 15px; padding: 20px; border-radius: 15px; border: 1px solid #ff0; }
+        button { background: #ff0; color: #000; border: none; padding: 10px 25px; border-radius: 8px; font-weight: bold; }
+        .leader { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #222; }
+    </style>
 </head>
-<body style="background-color: #000; color: #0f0; text-align: center; padding-top: 50px;">
-    <h1 style="font-size: 50px;">СИСТЕМА РАБОТАЕТ</h1>
-    <h2 id="score" style="color: #ff0;">Загрузка V...</h2>
-    <button onclick="clickBtn()" style="padding: 20px; font-size: 20px; background: #ff0;">НАЖМИ МЕНЯ</button>
+<body>
+
+    <div id="game" class="screen active">
+        <h1 id="score-display">0 V</h1>
+        <img id="coin" src="https://gulsekermurathan-lab.github.io/Myrepository/coin.png" onclick="clickCoin()" alt="Coin">
+        <div class="energy-container"><div id="energy-bar"></div></div>
+        <p id="energy-text">⚡ 1000 / 1000</p>
+    </div>
+
+    <div id="shop" class="screen">
+        <h2>Мастерская</h2>
+        <div class="shop-item">
+            <h3>Улучшение клика</h3>
+            <p>Цена: 50 V</p>
+            <button onclick="buyUpgrade()">КУПИТЬ (+1)</button>
+        </div>
+    </div>
+
+    <div id="top" class="screen">
+        <h2>Топ Игроков</h2>
+        <div class="leader"><span>1. @Stalin91</span><span>999,999 V</span></div>
+        <div class="leader"><span>2. @Hacker_KZ</span><span>500,000 V</span></div>
+        <div class="leader"><span>3. Ты</span><span id="my-top-score">0 V</span></div>
+    </div>
+
+    <div class="nav">
+        <div id="btn-game" class="tab-btn active-tab" onclick="changeScreen('game')">ИГРА</div>
+        <div id="btn-shop" class="tab-btn" onclick="changeScreen('shop')">МАГАЗИН</div>
+        <div id="btn-top" class="tab-btn" onclick="changeScreen('top')">ТОП</div>
+    </div>
 
     <script>
-        let score = parseInt(localStorage.getItem('kbn_score')) || 0;
-        function clickBtn() {
-            score++;
-            document.getElementById('score').innerText = score + " V";
-            localStorage.setItem('kbn_score', score);
+        let balance = parseInt(localStorage.getItem('kbn_score')) || 0;
+        let power = parseInt(localStorage.getItem('kbn_perClick')) || 1;
+        let stamina = parseInt(localStorage.getItem('kbn_energy')) || 1000;
+
+        function changeScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active-tab'));
+            document.getElementById(id).classList.add('active');
+            document.getElementById('btn-' + id).classList.add('active-tab');
         }
-        document.getElementById('score').innerText = score + " V";
+
+        function clickCoin() {
+            if (stamina > 0) {
+                balance += power;
+                stamina -= 1;
+                refreshUI();
+                save();
+                const img = document.getElementById('coin');
+                img.style.transform = "scale(0.9)";
+                setTimeout(() => img.style.transform = "scale(1)", 100);
+            }
+        }
+
+        function buyUpgrade() {
+            if (balance >= 50) {
+                balance -= 50;
+                power += 1;
+                refreshUI();
+                save();
+                alert("Прокачка прошла успешно!");
+            } else {
+                alert("Мало V-коинов!");
+            }
+        }
+
+        function refreshUI() {
+            document.getElementById('score-display').innerText = balance + " V";
+            document.getElementById('my-top-score').innerText = balance + " V";
+            document.getElementById('energy-text').innerText = "⚡ " + stamina + " / 1000";
+            document.getElementById('energy-bar').style.width = (stamina / 10) + "%";
+        }
+
+        function save() {
+            localStorage.setItem('kbn_score', balance);
+            localStorage.setItem('kbn_perClick', power);
+            localStorage.setItem('kbn_energy', stamina);
+        }
+
+        refreshUI();
+        setInterval(() => {
+            if (stamina < 1000) {
+                stamina += 1;
+                refreshUI();
+                save();
+            }
+        }, 1500);
     </script>
 </body>
 </html>
