@@ -1,11 +1,17 @@
 <!DOCTYPE html>
 <html>
-<body style="background: black; color: white; text-align: center;">
-    <h1 id="score">Загрузка...</h1>
-    <button onclick="clickCoin()" style="width: 200px; height: 200px; border-radius: 50%;">КЛИК</button>
+<head>
+    <meta charset="UTF-8">
+    <title>Bikoin</title>
+</head>
+<body style="background-color: #000; color: #0f0; text-align: center; padding-top: 50px;">
+    <h1 style="font-size: 50px;">СИСТЕМА РАБОТАЕТ</h1>
+    <h2 id="score" style="color: #ff0;">Загрузка V...</h2>
+    <button onclick="clickBtn()" style="padding: 20px; font-size: 20px; background: #ff0;">НАЖМИ МЕНЯ</button>
+
     <script>
         let score = parseInt(localStorage.getItem('kbn_score')) || 0;
-        function clickCoin() {
+        function clickBtn() {
             score++;
             document.getElementById('score').innerText = score + " V";
             localStorage.setItem('kbn_score', score);
