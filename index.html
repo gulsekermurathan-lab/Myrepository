@@ -1,22 +1,22 @@
 <script>
-// 1. Память нашего штаба
+// Данные игрока
 let score = parseInt(localStorage.getItem('kbn_score')) || 0;
 let perClick = parseInt(localStorage.getItem('kbn_perClick')) || 1;
 let energy = parseInt(localStorage.getItem('kbn_energy')) || 1000;
 
-// 2. Функция переключения экранов (Лидерборд, Магазин)
+// Переключение экранов
 function showScreen(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     
-    const targetScreen = document.getElementById(id);
-    if (targetScreen) targetScreen.classList.add('active');
+    const target = document.getElementById(id);
+    if (target) target.classList.add('active');
 
-    const activeBtn = document.querySelector(`[onclick="showScreen('${id}')"]`);
-    if (activeBtn) activeBtn.classList.add('active');
+    const btn = document.querySelector(`[onclick="showScreen('${id}')"]`);
+    if (btn) btn.classList.add('active');
 }
 
-// 3. Честный клик
+// Клик
 function clickCoin() {
     if (energy > 0) {
         score += perClick;
@@ -26,25 +26,24 @@ function clickCoin() {
     }
 }
 
-// 4. Обновление интерфейса
+// Обновление цифр
 function updateDisplay() {
     document.querySelectorAll('#score').forEach(el => el.innerText = score + " V");
-    document.getElementById('energy-text').innerText = "⚡ " + energy + " / 1000";
-    let energyBar = document.getElementById('energy');
-    if (energyBar) energyBar.style.width = (energy / 10) + "%";
+    const enText = document.getElementById('energy-text');
+    if (enText) enText.innerText = "⚡ " + energy + " / 1000";
+    const bar = document.getElementById('energy');
+    if (bar) bar.style.width = (energy / 10) + "%";
 }
 
-// 5. Сохранение данных
+// Сохранение
 function saveData() {
     localStorage.setItem('kbn_score', score);
     localStorage.setItem('kbn_perClick', perClick);
     localStorage.setItem('kbn_energy', energy);
 }
 
-// Запуск при старте
+// Запуск
 updateDisplay();
-
-// Регенерация энергии в Береке
 setInterval(() => { 
     if (energy < 1000) { 
         energy += 1; 
