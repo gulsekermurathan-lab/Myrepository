@@ -5,17 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Bikoin Clicker</title>
     <style>
-        body { background: #000; color: #fff; font-family: sans-serif; text-align: center; margin: 0; overflow: hidden; }
-        .screen { display: none; padding: 20px; }
+        body { background: #000; color: #fff; font-family: sans-serif; text-align: center; margin: 0; padding: 0; overflow: hidden; }
+        .screen { display: none; padding: 20px; height: 80vh; }
         .active { display: block; }
-        #coin { width: 200px; transition: 0.1s; cursor: pointer; margin-top: 50px; }
-        .energy-container { width: 80%; background: #333; height: 10px; border-radius: 5px; margin: 20px auto; }
-        #energy { background: #ff0; height: 100%; width: 100%; border-radius: 5px; transition: 0.3s; }
-        .nav { position: fixed; bottom: 0; width: 100%; background: #111; display: flex; justify-content: space-around; padding: 10px 0; }
-        .tab-btn { color: #888; text-decoration: none; font-size: 14px; }
-        .tab-btn.active { color: #ff0; font-weight: bold; }
-        .shop-item { background: #222; margin: 10px; padding: 15px; border-radius: 10px; }
-        .leader { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #222; }
+        #coin { width: 220px; transition: 0.1s; cursor: pointer; margin-top: 40px; -webkit-tap-highlight-color: transparent; }
+        .energy-container { width: 80%; background: #333; height: 12px; border-radius: 10px; margin: 20px auto; overflow: hidden; }
+        #energy { background: linear-gradient(90deg, #ff0, #ffa500); height: 100%; width: 100%; transition: 0.2s; }
+        .nav { position: fixed; bottom: 0; width: 100%; background: #1a1a1a; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #333; }
+        .tab-btn { color: #888; font-size: 14px; font-weight: bold; cursor: pointer; }
+        .tab-btn.active-tab { color: #ff0; }
+        .shop-item { background: #222; margin: 15px; padding: 20px; border-radius: 15px; border: 1px solid #444; }
+        button { background: #ff0; color: #000; border: none; padding: 10px 20px; border-radius: 10px; font-weight: bold; margin-top: 10px; }
+        .leader { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #222; }
     </style>
 </head>
 <body>
@@ -23,9 +24,7 @@
     <div id="game" class="screen active">
         <h1 id="score">0 V</h1>
         <img id="coin" src="https://gulsekermurathan-lab.github.io/Myrepository/coin.png" onclick="clickCoin()" alt="Coin">
-        <div class="energy-container">
-            <div id="energy"></div>
-        </div>
+        <div class="energy-container"><div id="energy"></div></div>
         <p id="energy-text">⚡ 1000 / 1000</p>
     </div>
 
@@ -46,9 +45,9 @@
     </div>
 
     <div class="nav">
-        <div class="tab-btn active" onclick="showScreen('game')">ИГРА</div>
-        <div class="tab-btn" onclick="showScreen('shop')">МАГАЗИН</div>
-        <div class="tab-btn" onclick="showScreen('top')">ТОП</div>
+        <div id="btn-game" class="tab-btn active-tab" onclick="showScreen('game')">ИГРА</div>
+        <div id="btn-shop" class="tab-btn" onclick="showScreen('shop')">МАГАЗИН</div>
+        <div id="btn-top" class="tab-btn" onclick="showScreen('top')">ТОП</div>
     </div>
 
     <script>
@@ -58,9 +57,9 @@
 
         function showScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active-tab'));
             document.getElementById(id).classList.add('active');
-            event.currentTarget.classList.add('active');
+            document.getElementById('btn-' + id).classList.add('active-tab');
         }
 
         function clickCoin() {
@@ -69,8 +68,9 @@
                 energy -= 1;
                 updateDisplay();
                 saveData();
-                document.getElementById('coin').style.transform = "scale(0.95)";
-                setTimeout(() => document.getElementById('coin').style.transform = "scale(1)", 100);
+                const coinImg = document.getElementById('coin');
+                coinImg.style.transform = "scale(0.95)";
+                setTimeout(() => coinImg.style.transform = "scale(1)", 100);
             }
         }
 
@@ -81,6 +81,8 @@
                 updateDisplay();
                 saveData();
                 alert("Уровень повышен!");
+            } else {
+                alert("Недостаточно V-коинов!");
             }
         }
 
