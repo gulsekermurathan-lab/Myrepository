@@ -2,214 +2,124 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>V-Clicker Pro</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bikoin Ultimate Clicker</title>
+    <script src="https://sad.adsgram.ai/js/adsgram-ad-sdk.js"></script>
     <style>
-        body { font-family: sans-serif; background: #000; color: #fff; text-align: center; margin: 0; padding: 0; overflow: hidden; }
-        .header { background: #111; padding: 15px; border-bottom: 2px solid #f1c40f; color: #f1c40f; font-weight: bold; }
-        #balance { font-size: 2.5em; margin: 15px 0; text-shadow: 0 0 10px #f1c40f; }
-        .coin-container { height: 230px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .coin { width: 180px; cursor: pointer; transition: transform 0.1s; filter: drop-shadow(0 0 15px rgba(241,196,15,0.5)); }
-        .coin:active { transform: scale(0.9); }
-        
-        /* Энергия */
-        .energy-container { width: 80%; background: #333; height: 20px; border-radius: 10px; margin: 20px auto; overflow: hidden; border: 1px solid #444; }
-        #energy-bar { width: 100%; height: 100%; background: linear-gradient(90deg, #f1c40f, #f39c12); transition: width 0.2s; }
-        #energy-text { font-size: 0.9em; color: #f1c40f; margin-top: -15px; }
-
-        .tabs { display: flex; position: fixed; bottom: 0; width: 100%; background: #111; height: 70px; border-top: 1px solid #333; }
-        .tab { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #666; font-size: 0.8em; cursor: pointer; }
-        .tab.active { color: #f1c40f; }
-        .content { display: none; padding: 20px; height: 60vh; overflow-y: auto; }
-        .content.active { display: block; }
-        .upgrade-card { background: #1a1a1a; padding: 12px; margin: 8px 0; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #333; }
-        .btn { background: #f1c40f; color: #000; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; }
-        .leader-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #222; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; background: #0f0f0f; color: #e0e0e0; margin: 0; padding: 20px; user-select: none; }
+        .header { font-size: 28px; font-weight: bold; color: #f39c12; margin-bottom: 10px; }
+        #balance { font-size: 36px; color: #fff; text-shadow: 0 0 10px #f39c12; }
+        .container { display: flex; flex-direction: column; align-items: center; gap: 20px; margin-top: 30px; }
+        #coin { width: 220px; filter: drop-shadow(0 0 15px #f39c12); cursor: pointer; transition: transform 0.05s; }
+        #coin:active { transform: scale(0.92); }
+        .shop, .leaderboard { background: #1a1a1a; padding: 15px; border-radius: 15px; width: 90%; max-width: 400px; border: 1px solid #333; }
+        .upgrade-btn { width: 100%; padding: 12px; margin: 5px 0; background: #27ae60; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; }
+        .upgrade-btn:disabled { background: #555; cursor: not-allowed; }
+        .ad-btn { background: #e74c3c; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
     </style>
 </head>
 <body>
 
-<div class="header">🎮 @<span id="username">Gamer</span></div>
-<div id="balance">0 V</div>
+    <div class="header">BIKOIN CLICKER</div>
+    <div id="balance">0</div>
+    <div style="color: #888;">Монет за клик: <span id="perClick">1</span> | В секунду: <span id="perSec">0</span></div>
 
-<div id="game-tab" class="content active">
-    <div class="coin-container">
-        <img id="bike-img" src="https://cdn-icons-png.flaticon.com/512/2972/2972185.png" class="coin" onclick="clickCoin()">
-    </div>
-    
-    <div class="energy-container">
-        <div id="energy-bar"></div>
-    </div>
-    <div id="energy-text">⚡ 1000 / 1000</div>
-
-    <div style="margin-top: 10px; color: #aaa;">Клик: <span id="cpc">1</span> | Авто: <span id="cps">0</span></div>
-</div>
-
-<div id="shop-tab" class="content">
-    <h2 style="color: #f1c40f;">Мастерская</h2>
-    <div class="upgrade-card">
-        <div><strong>Улучшение клика</strong><br><small>Клик +1</small></div>
-        <button class="btn" onclick="buyUpgrade('click')" id="upg-click">50 V</button>
-    </div>
-    <div class="upgrade-card">
-        <div><strong>Авто-майнер</strong><br><small>Авто +2/с</small></div>
-        <button class="btn" onclick="buyUpgrade('auto')" id="upg-auto">200 V</button>
-    </div>
-</div>
-
-<div id="top-tab" class="content">
-    <h2 style="color: #f1c40f;">🏆 Топ Игроков</h2>
-    <div id="leaderboard-list">Загрузка...</div>
-</div>
-
-<div class="tabs">
-    <div class="tab active" onclick="openTab('game-tab', this)">🚀 ИГРА</div>
-    <div class="tab" onclick="openTab('shop-tab', this)">🛠️ МАГАЗИН</div>
-    <div class="tab" onclick="openTab('top-tab', this)">🏆 ТОП</div>
-</div>
-
-<script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyDR4dwkwzvM_-jpfwC4E4YWg-kXOh2EvHo",
-        authDomain: "stalinclicker.firebaseapp.com",
-        databaseURL: "https://stalinclicker-default-rtdb.europe-west1.firebasedatabase.app/",
-        projectId: "stalinclicker",
-        storageBucket: "stalinclicker.firebasestorage.app",
-        messagingSenderId: "266501925938",
-        appId: "1:266501925938:web:a4aeba79507602d8c2202b"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-
-    let tg = window.Telegram.WebApp;
-    tg.expand();
-    let userId = tg.initDataUnsafe?.user?.id || "local_user";
-    let userName = tg.initDataUnsafe?.user?.username || "Gamer";
-    document.getElementById('username').innerText = userName;
-
-    // Состояние игры
-    let balance = 0;
-    let clickPower = 1;
-    let autoPower = 0;
-    let clickCost = 50;
-    let autoCost = 200;
-    
-    // Энергия
-    let energy = 1000;
-    let maxEnergy = 1000;
-
-    db.ref('users/' + userId).once('value').then((snapshot) => {
-        if (snapshot.exists()) {
-            let data = snapshot.val();
-            balance = data.balance || 0;
-            clickPower = data.clickPower || 1;
-            autoPower = data.autoPower || 0;
-            clickCost = data.clickCost || 50;
-            autoCost = data.autoCost || 200;
-            updateUI();
-        }
-    });
-
-    function saveToDB() {
-        db.ref('users/' + userId).set({
-            username: userName,
-            balance: Math.floor(balance),
-            clickPower: clickPower,
-            autoPower: autoPower,
-            clickCost: clickCost,
-            autoCost: autoCost,
-            lastUpdate: Date.now()
-        });
-    }
-
-    function updateUI() {
-        document.getElementById('balance').innerText = Math.floor(balance).toLocaleString() + ' V';
-        document.getElementById('cpc').innerText = clickPower;
-        document.getElementById('cps').innerText = autoPower;
-        document.getElementById('upg-click').innerText = clickCost + ' V';
-        document.getElementById('upg-auto').innerText = autoCost + ' V';
+    <div class="container">
+        <img id="coin" src="https://cdn-icons-png.flaticon.com/512/25/25228.png" alt="Bikoin">
         
-        // Обновление полоски энергии
-        let energyPercent = (energy / maxEnergy) * 100;
-        document.getElementById('energy-bar').style.width = energyPercent + '%';
-        document.getElementById('energy-text').innerText = `⚡ ${Math.floor(energy)} / ${maxEnergy}`;
+        <button class="upgrade-btn ad-btn" onclick="showAd()">📺 СМОТРЕТЬ РЕКЛАМУ (+500 💰)</button>
 
-        document.getElementById('upg-click').disabled = (balance < clickCost);
-        document.getElementById('upg-auto').disabled = (balance < autoCost);
-    }
+        <div class="shop">
+            <h3>Магазин улучшений</h3>
+            <button class="upgrade-btn" id="upg1" onclick="buyUpgrade(1)">Улучшить клик (Цена: 50)</button>
+            <button class="upgrade-btn" id="upg2" onclick="buyUpgrade(2)">Авто-майнер (Цена: 200)</button>
+        </div>
 
-    function clickCoin() {
-        if (energy >= 1) {
-            balance += clickPower;
-            energy -= 1;
+        <div class="leaderboard">
+            <h3>Топ игроков</h3>
+            <div id="leaders">Загрузка...</div>
+        </div>
+    </div>
+
+    <script>
+        // Данные игры
+        let state = {
+            balance: parseFloat(localStorage.getItem('bk_bal')) || 0,
+            perClick: parseFloat(localStorage.getItem('bk_pc')) || 1,
+            perSec: parseFloat(localStorage.getItem('bk_ps')) || 0,
+            upg1Price: parseFloat(localStorage.getItem('bk_p1')) || 50,
+            upg2Price: parseFloat(localStorage.getItem('bk_p2')) || 200
+        };
+
+        const balEl = document.getElementById('balance');
+        const pcEl = document.getElementById('perClick');
+        const psEl = document.getElementById('perSec');
+
+        // Инициализация Adsgram с твоим рабочим ID 23535
+        const AdController = window.Adsgram.init({ blockId: "23535" });
+
+        function updateUI() {
+            balEl.innerText = Math.floor(state.balance).toLocaleString();
+            pcEl.innerText = state.perClick;
+            psEl.innerText = state.perSec;
+            document.getElementById('upg1').innerText = `Улучшить клик (Цена: ${Math.floor(state.upg1Price)})`;
+            document.getElementById('upg2').innerText = `Авто-майнер (Цена: ${Math.floor(state.upg2Price)})`;
+            save();
+        }
+
+        function save() {
+            localStorage.setItem('bk_bal', state.balance);
+            localStorage.setItem('bk_pc', state.perClick);
+            localStorage.setItem('bk_ps', state.perSec);
+            localStorage.setItem('bk_p1', state.upg1Price);
+            localStorage.setItem('bk_p2', state.upg2Price);
+        }
+
+        document.getElementById('coin').onclick = () => {
+            state.balance += state.perClick;
             updateUI();
-            saveToDB();
-            if (window.navigator.vibrate) window.navigator.vibrate(10);
-        }
-    }
+        };
 
-    function buyUpgrade(type) {
-        if (type === 'click' && balance >= clickCost) {
-            balance -= clickCost;
-            clickPower += 1;
-            clickCost = Math.floor(clickCost * 1.6);
-        } else if (type === 'auto' && balance >= autoCost) {
-            balance -= autoCost;
-            autoPower += 2;
-            autoCost = Math.floor(autoCost * 1.7);
+        function buyUpgrade(type) {
+            if (type === 1 && state.balance >= state.upg1Price) {
+                state.balance -= state.upg1Price;
+                state.perClick += 1;
+                state.upg1Price *= 1.5;
+            } else if (type === 2 && state.balance >= state.upg2Price) {
+                state.balance -= state.upg2Price;
+                state.perSec += 2;
+                state.upg2Price *= 1.7;
+            }
+            updateUI();
         }
+
+        // Авто-майнинг
+        setInterval(() => {
+            if (state.perSec > 0) {
+                state.balance += state.perSec / 10;
+                updateUI();
+            }
+        }, 100);
+
+        // Функция рекламы
+        async function showAd() {
+            try {
+                const result = await AdController.show();
+                if (result.done) {
+                    state.balance += 500;
+                    updateUI();
+                    alert("Бонус 500 Bikoin зачислен!");
+                }
+            } catch (e) {
+                alert("Реклама пока не готова. Попробуй позже!");
+            }
+        }
+
+        // Заглушка лидерборда
+        document.getElementById('leaders').innerHTML = "1. Ты — " + Math.floor(state.balance) + "<br>2. Bot_Stalin — 150,000";
+
         updateUI();
-        saveToDB();
-    }
-
-    function updateLeaderboard() {
-        db.ref('users').orderByChild('balance').limitToLast(10).once('value', (snapshot) => {
-            let list = [];
-            snapshot.forEach((child) => {
-                list.push(child.val());
-            });
-            list.reverse();
-            let html = '';
-            list.forEach((user, index) => {
-                html += `<div class="leader-item">
-                    <span>${index + 1}. @${user.username}</span>
-                    <span style="color:#f1c40f">${Math.floor(user.balance).toLocaleString()} V</span>
-                </div>`;
-            });
-            document.getElementById('leaderboard-list').innerHTML = html || "Пока пусто...";
-        });
-    }
-
-    // Восстановление энергии и авто-майнинг
-    setInterval(() => { 
-        let changed = false;
-        if (autoPower > 0) {
-            balance += autoPower / 10;
-            changed = true;
-        }
-        if (energy < maxEnergy) {
-            energy += 1 / 10; // Восстанавливаем 1 ед в секунду
-            if (energy > maxEnergy) energy = maxEnergy;
-            changed = true;
-        }
-        if (changed) updateUI();
-    }, 100);
-
-    setInterval(saveToDB, 10000);
-
-    function openTab(id, el) {
-        document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        el.classList.add('active');
-        if (id === 'top-tab') updateLeaderboard();
-    }
-
-    updateUI();
-</script>
+    </script>
 </body>
 </html>
