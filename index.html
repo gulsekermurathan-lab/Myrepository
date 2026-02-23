@@ -2,109 +2,67 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=none">
-    <title>Bikoin Clicker Official</title>
-    <script src="https://sad.adsgram.ai/js/adsgram-ad-sdk.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Bikoin Clicker KBN</title>
     <style>
-        :root { --gold: #f39c12; --dark: #121212; --card: #1e1e1e; }
-        body { background: var(--dark); color: white; font-family: sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; touch-action: manipulation; }
-        .header { text-align: center; padding: 30px 0; width: 100%; background: linear-gradient(180deg, #1a1a1a, transparent); }
-        #balance { font-size: 54px; font-weight: 900; color: var(--gold); }
-        .stats { color: #888; font-size: 14px; margin-top: 5px; }
-        .coin-wrap { margin: 40px 0; position: relative; }
-        #coin { width: 220px; filter: drop-shadow(0 0 15px rgba(243,156,18,0.3)); cursor: pointer; transition: transform 0.05s; }
+        body { background-color: #000; color: white; text-align: center; font-family: sans-serif; overflow: hidden; margin: 0; }
+        #score { font-size: 48px; margin-top: 20px; font-weight: bold; color: #00d2ff; }
+        .coin-container { position: relative; display: inline-block; margin-top: 50px; }
+        #coin { width: 250px; cursor: pointer; transition: transform 0.1s; -webkit-tap-highlight-color: transparent; }
         #coin:active { transform: scale(0.95); }
-        .btn-ad { background: #e74c3c; color: white; border: none; padding: 15px 30px; border-radius: 50px; font-weight: bold; cursor: pointer; margin-bottom: 20px; }
-        .shop { width: 90%; max-width: 400px; background: var(--card); border-radius: 20px; padding: 15px; border: 1px solid #333; }
-        .item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #2a2a2a; }
-        .btn-buy { background: var(--gold); border: none; padding: 8px 15px; border-radius: 8px; font-weight: bold; }
-        .btn-buy:disabled { background: #444; color: #777; }
-        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-100px); } }
+        .plus-one { position: absolute; color: #fff; font-size: 24px; font-weight: bold; animation: flyUp 0.5s ease-out forwards; pointer-events: none; }
+        @keyframes flyUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-100px); } }
+        #leaderboard { margin-top: 30px; background: #111; padding: 10px; border-radius: 10px; border: 1px solid #333; width: 80%; margin-left: 10%; }
+        .ad-block { margin-top: 20px; min-height: 50px; background: #222; border: 1px dashed #555; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <div id="balance">0</div>
-        <div class="stats">Клик: +<span id="pClickVal">1</span> | Авто: +<span id="pSecVal">0</span></div>
+    <div id="score">0</div>
+
+    <div class="coin-container">
+        <img id="coin" src="coin.png" alt="CLICK ME" onclick="clickCoin(event)">
     </div>
 
-    <div class="coin-wrap">
-        <img id="coin" src="https://cdn-icons-png.flaticon.com/512/25/25228.png">
+    <div id="leaderboard">
+        <h3>ТОП ИГРОКОВ (Береке)</h3>
+        <div id="best-score">Твой рекорд: 0</div>
     </div>
 
-    <button class="btn-ad" onclick="showAd()">📺 ВИДЕО БОНУС (+1000)</button>
-
-    <div style="color: var(--gold); margin-bottom: 10px;">МАГАЗИН</div>
-    <div class="shop">
-        <div class="item">
-            <span>🚀 Сила клика</span>
-            <button class="btn-buy" id="btn1" onclick="buy(1)">50 💰</button>
-        </div>
-        <div class="item">
-            <span>⚙️ Авто-ферма</span>
-            <button class="btn-buy" id="btn2" onclick="buy(2)">250 💰</button>
-        </div>
+    <div class="ad-block">
+        <script>/* Сюда вставь скрипт от блока 23535 */</script>
+        AD BLOCK ID: 23535
     </div>
 
     <script>
-        // Инициализация и ПРОВЕРКА на ошибки
-        let coins = parseFloat(localStorage.getItem('bk_final_coins')) || 0;
-        let pClick = parseFloat(localStorage.getItem('bk_final_pClick')) || 1;
-        let pSec = parseFloat(localStorage.getItem('bk_final_pSec')) || 0;
-        let c1 = parseFloat(localStorage.getItem('bk_final_c1')) || 50;
-        let c2 = parseFloat(localStorage.getItem('bk_final_c2')) || 250;
+        let score = 0;
+        let bestScore = localStorage.getItem('bestScore') || 0;
+        const scoreDisplay = document.getElementById('score');
+        const bestDisplay = document.getElementById('best-score');
 
-        // Если в памяти затесался "не число" (NaN), сбрасываем
-        if (isNaN(coins)) coins = 0; 
+        bestDisplay.innerText = "Твой рекорд: " + bestScore;
 
-        const AdController = window.Adsgram.init({ blockId: "23535" });
+        function clickCoin(event) {
+            score++;
+            scoreDisplay.innerText = score;
 
-        function update() {
-            document.getElementById('balance').innerText = Math.floor(coins).toLocaleString();
-            document.getElementById('pClickVal').innerText = pClick;
-            document.getElementById('pSecVal').innerText = pSec;
-            document.getElementById('btn1').innerText = Math.floor(c1) + " 💰";
-            document.getElementById('btn2').innerText = Math.floor(c2) + " 💰";
-            document.getElementById('btn1').disabled = coins < c1;
-            document.getElementById('btn2').disabled = coins < c2;
+            // Исправляем рекорд
+            if (score > bestScore) {
+                bestScore = score;
+                localStorage.setItem('bestScore', bestScore);
+                bestDisplay.innerText = "Твой рекорд: " + bestScore;
+            }
 
-            localStorage.setItem('bk_final_coins', coins);
-            localStorage.setItem('bk_final_pClick', pClick);
-            localStorage.setItem('bk_final_pSec', pSec);
-            localStorage.setItem('bk_final_c1', c1);
-            localStorage.setItem('bk_final_c2', c2);
+            // Анимация +1 (убираем мертвый клик)
+            const plus = document.createElement('div');
+            plus.innerText = '+1';
+            plus.className = 'plus-one';
+            plus.style.left = event.clientX - 10 + 'px';
+            plus.style.top = event.clientY - 40 + 'px';
+            document.body.appendChild(plus);
+
+            setTimeout(() => { plus.remove(); }, 500);
         }
-
-        document.getElementById('coin').onclick = (e) => {
-            coins += pClick;
-            
-            // Эффект вылетающих цифр
-            const t = document.createElement('div');
-            t.innerText = `+${pClick}`;
-            t.style.cssText = `position:fixed; left:${e.clientX}px; top:${e.clientY}px; color:#f39c12; font-weight:bold; font-size:24px; pointer-events:none; animation:floatUp 0.8s forwards; z-index:99;`;
-            document.body.appendChild(t);
-            setTimeout(() => t.remove(), 800);
-            
-            update();
-        };
-
-        function buy(type) {
-            if (type === 1 && coins >= c1) { coins -= c1; pClick += 1; c1 *= 1.8; }
-            if (type === 2 && coins >= c2) { coins -= c2; pSec += 2; c2 *= 2; }
-            update();
-        }
-
-        setInterval(() => { if(pSec > 0) { coins += pSec/10; update(); } }, 100);
-
-        async function showAd() {
-            try {
-                const res = await AdController.show();
-                if (res.done) { coins += 1000; update(); }
-            } catch (e) { alert("Реклама ещё грузится..."); }
-        }
-
-        update();
     </script>
 </body>
 </html>
